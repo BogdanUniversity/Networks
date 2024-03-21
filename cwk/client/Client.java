@@ -99,6 +99,11 @@ public class Client {
         if (args.length == 2){
          
             fileString = args[1];
+            if (fileString == null)
+            {
+                System.err.println(" Error: No file name given to move" );
+                System.exit(1);
+            }
         }
 
         //We create a new client
