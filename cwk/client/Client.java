@@ -35,7 +35,18 @@ public class Client {
             String fromServer;
             while ((fromServer = socketInput.readLine()) != null) {
                 // Echo server string.
-                System.out.println(fromServer);
+                if (fromServer.equals("Error 1"))
+                {
+                    System.out.println("Incorrect command line argument - Has to be either 'put' or 'list' ");
+                }else if(fromServer.equals("Error 2"))
+                {
+                    System.out.println("Cannot Upload File - File already exists on Server");
+
+                }else
+                {
+                    System.out.println(fromServer);
+                }
+                
             }
 
             socketOutput.close();
@@ -47,6 +58,10 @@ public class Client {
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to host.\n");
+            System.exit(1);
+        } catch (RuntimeException e)
+        {
+            System.err.println(e);
             System.exit(1);
         }
     }
@@ -62,26 +77,31 @@ public class Client {
             socketOutput.println("END_OF_FILE");
 
         } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
+            System.err.println("Error: Cannot open file " + e.getMessage());
             System.exit(1);
         }
     }
 
-     // Main Function - Should Perform Client Side Checks Here
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("Usage: java Client <userInput>");
+    public static void main(String[] args) 
+    {   
+        //Checks if number of arguments is correct
+        if (args.length < 1) 
+        {
+            System.err.println("Not Enough Arguments - Usage: java Client <userInput>");
             System.exit(1);
         }
 
+        //Sets variable contents from Command Line Arguments
         String userInput = args[0];
         String fileString = null;
 
+        // If we have 2 args we know we using put therefore we assign the filename to fileString
         if (args.length == 2){
          
             fileString = args[1];
         }
 
+        //We create a new client
         Client courseworkClient = new Client();
         courseworkClient.serverConnect(userInput,fileString);
     }

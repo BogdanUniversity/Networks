@@ -1,5 +1,6 @@
 
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.io.*;
 import java.util.*;
 public class Executor extends Thread{
@@ -23,7 +24,7 @@ public class Executor extends Thread{
 						new InputStreamReader(
 						socket.getInputStream()));
 
-			// Logging.
+			// Server side Logging data to console
 			InetAddress inet = socket.getInetAddress();
 			Date date = new Date();
 			System.out.println("\nDate " + date.toString() );
@@ -39,7 +40,6 @@ public class Executor extends Thread{
 
 
 			// Read file contents only if command is "put"
-
             StringBuilder fileContentsBuilder = new StringBuilder();
 			String fileContents = null;
 
@@ -56,26 +56,23 @@ public class Executor extends Thread{
 
 
 			// Initialise a protocol object for this client.
-			String inputLine, outputLine;
+			String outputLine;
 			CourseworkProtocol cProtocol = new CourseworkProtocol();
 			outputLine = cProtocol.processRequest(userInput,fileString,fileContents);
+
 			out.println(outputLine);
 
-			//Here we construct the Log File after we know that the commands have been run corectly.
-			logRequest(date, inet.getHostAddress(), userInput);
+			//If the Server Output is not an error we correctly log the action ona  file
+			if (outputLine.startsWith("Error"))
+			{
+				//Do Nothing
+			}else
+			{
+				logRequest(date, inet.getHostAddress(), userInput);
 
+			}
 
-
-
-			// Sequential protocol. WE NOT USING THIS?
-			/* 
-			while( (inputLine = in.readLine())!=null ) {
-				outputLine = cProtocol.processRequest(inputLine);
-				out.println(outputLine);
-				if (outputLine.equals("Bye"))
-					break;
-			}*/
-
+			
 
 			// Free up resources for this connection.
 			out.close();
@@ -84,12 +81,14 @@ public class Executor extends Thread{
 
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} 
+
+
     }
 
 	private void logRequest(Date date, String ipAddress, String request) 
 	{
-        String logFilePath = SERVER_FILES + File.separator + "log.txt";
+        String logFilePath = SERVER_FILES + "/" + "log.txt";
 
         try (
 
@@ -104,9 +103,15 @@ public class Executor extends Thread{
                 logFile.createNewFile();
             }
 
+			SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEE, MMMM d, yyyy");
+        	String formattedDayDate = dayDateFormat.format(date);
+
+			SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        	String formattedTime = timeFormat.format(date);
+
             String logEntry = String.format("%s | %s | %s | %s%n",
-                    date,
-                    date,
+                    formattedTime,
+                    formattedDayDate,
                     ipAddress,
                     request);
 
